@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CardioPulse AI — Heart Disease Risk Prediction</title>
+    <meta name="description"
+        content="AI-powered heart disease risk prediction using Deep Neural Network, TabNet Transformer, and MLP ensemble models with personalized lifestyle recommendations.">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+
+        <!-- Header / Navigation -->
+        <header class="app-header">
+            <div class="logo-group">
+                <div class="logo-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+                <div>
+                    <h1>CardioPulse AI</h1>
+                    <p>Heart Disease Risk Assessment &amp; Lifestyle Recommendation Engine</p>
+                </div>
+            </div>
+            <nav class="nav-tabs">
+                <a href="/" class="tab-btn active"><i class="fa-solid fa-stethoscope"></i> Predictor</a>
+                <a href="/benchmark" class="tab-btn"><i class="fa-solid fa-chart-line"></i> Benchmark</a>
+                <button id="theme-toggle" class="tab-btn" title="Toggle Light/Dark Mode">
+                    <i class="fa-solid fa-moon" id="theme-icon"></i>
+                </button>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <section id="patient-form-tab" class="tab-content active">
+
+                <!-- Patient Form (full width) -->
+                <div class="card glass-card animate-fade-up delay-100"
+                    style="max-width:900px; margin: 0 auto 24px auto;">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-sliders"></i> Clinical Feature Input</h2>
+                        <p>Enter patient physiological parameters for multi-model risk analysis</p>
+                    </div>
+                    <form id="prediction-form">
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label for="age"><i class="fa-solid fa-calendar-days"></i> Age (years)</label>
+                                <input type="number" id="age" name="age" value="55" min="18" max="100" required>
+                            </div>
+                            <div class="input-group">
+                                <label for="sex"><i class="fa-solid fa-venus-mars"></i> Sex</label>
+                                <select id="sex" name="sex" required>
+                                    <option value="1" selected>Male (1)</option>
+                                    <option value="0">Female (0)</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="cp"><i class="fa-solid fa-stethoscope"></i> Chest Pain Type</label>
+                                <select id="cp" name="cp" required>
+                                    <option value="0">0: Typical Angina</option>
+                                    <option value="1">1: Atypical Angina</option>
+                                    <option value="2" selected>2: Non-anginal Pain</option>
+                                    <option value="3">3: Asymptomatic</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="trestbps"><i class="fa-solid fa-gauge-high"></i> Resting BP
+                                    (mmHg)</label>
+                                <input type="number" id="trestbps" name="trestbps" value="135" min="80" max="220"
+                                    required>
+                            </div>
+                            <div class="input-group">
+                                <label for="chol"><i class="fa-solid fa-vial"></i> Cholesterol (mg/dL)</label>
+                                <input type="number" id="chol" name="chol" value="245" min="100" max="600" required>
+                            </div>
+                            <div class="input-group">
+                                <label for="fbs"><i class="fa-solid fa-cubes-stacked"></i> Fasting Blood
+                                    Sugar</label>
+                                <select id="fbs" name="fbs" required>
+                                    <option value="0">False (≤ 120 mg/dL)</option>
+                                    <option value="1" selected>True (&gt; 120 mg/dL)</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="restecg"><i class="fa-solid fa-wave-square"></i> Resting ECG</label>
+                                <select id="restecg" name="restecg" required>
+                                    <option value="0">0: Normal</option>
+                                    <option value="1" selected>1: ST-T Abnormality</option>
+                                    <option value="2">2: LV Hypertrophy</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="thalach"><i class="fa-solid fa-heart-pulse"></i> Max Heart Rate</label>
+                                <input type="number" id="thalach" name="thalach" value="142" min="60" max="220"
+                                    required>
+                            </div>
+                            <div class="input-group">
+                                <label for="exang"><i class="fa-solid fa-person-running"></i> Exercise
+                                    Angina</label>
+                                <select id="exang" name="exang" required>
+                                    <option value="0">No (0)</option>
+                                    <option value="1" selected>Yes (1)</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="oldpeak"><i class="fa-solid fa-chart-line-down"></i> ST
+                                    Depression</label>
+                                <input type="number" step="0.1" id="oldpeak" name="oldpeak" value="1.8" min="0.0"
+                                    max="7.0" required>
+                            </div>
+                            <div class="input-group">
+                                <label for="slope"><i class="fa-solid fa-chart-line"></i> ST Slope</label>
+                                <select id="slope" name="slope" required>
+                                    <option value="0">0: Upsloping</option>
+                                    <option value="1" selected>1: Flat</option>
+                                    <option value="2">2: Downsloping</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="ca"><i class="fa-solid fa-code-branch"></i> Major Vessels (ca)</label>
+                                <select id="ca" name="ca" required>
+                                    <option value="0">0 vessels</option>
+                                    <option value="1" selected>1 vessel</option>
+                                    <option value="2">2 vessels</option>
+                                    <option value="3">3 vessels</option>
+                                    <option value="4">4 vessels</option>
+                                </select>
+                            </div>
+                            <div class="input-group span-2">
+                                <label for="thal"><i class="fa-solid fa-notes-medical"></i> Thalassemia</label>
+                                <select id="thal" name="thal" required>
+                                    <option value="0">0: Normal / Null</option>
+                                    <option value="1">1: Fixed Defect</option>
+                                    <option value="2" selected>2: Normal</option>
+                                    <option value="3">3: Reversible Defect</option>
+                                </select>
+                            </div>
+                            <div class="input-group span-2">
+                                <label for="model_choice"><i class="fa-solid fa-microchip"></i> Prediction
+                                    Engine</label>
+                                <select id="model_choice" name="model_choice">
+                                    <option value="ensemble" selected>Ensemble Consensus (DNN + TabNet + MLP)
+                                    </option>
+                                    <option value="dnn">Deep Neural Network (DNN)</option>
+                                    <option value="tabnet">TabNet (Attentive Transformer)</option>
+                                    <option value="mlp">Multi-Layer Perceptron (MLP)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" id="submit-btn" class="btn btn-primary">
+                            <i class="fa-solid fa-stethoscope"></i> Predict Risk &amp; Generate Recommendations
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Results (full width, hidden until prediction) -->
+                <div class="results-container animate-fade-up delay-200" style="max-width:900px; margin: 0 auto;">
+                    <!-- Placeholder -->
+                    <div id="results-placeholder" class="card glass-card placeholder-card"
+                        style="min-height:200px; padding:36px;">
+                        <i class="fa-solid fa-heart-circle-bolt placeholder-icon"
+                            style="font-size:42px; margin-bottom:14px;"></i>
+                        <h3 style="font-size:16px;">Awaiting Prediction</h3>
+                        <p>Click <strong>Predict Risk</strong> above to run the analysis.</p>
+                    </div>
+
+                    <!-- Dynamic Results -->
+                    <div id="results-content" class="hidden">
+                        <div class="card glass-card risk-banner" id="risk-banner">
+                            <div class="risk-gauge-container">
+                                <div class="risk-gauge-val" id="risk-percentage-val">--%</div>
+                                <div class="risk-gauge-label">Risk Score</div>
+                            </div>
+                            <div class="risk-banner-details">
+                                <div class="risk-category-badge" id="risk-category-badge">High Risk</div>
+                                <div class="risk-urgency" id="risk-urgency-text">Urgency...</div>
+                                <p class="model-meta">Evaluated by: <strong id="evaluated-model-name">Ensemble</strong>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="model-cards-grid">
+                            <div class="model-result-card delay-50" id="card-dnn">
+                                <div class="m-title"><i class="fa-solid fa-brain text-indigo"></i> DNN</div>
+                                <div class="m-prob" id="prob-dnn">--%</div>
+                                <div class="m-status" id="status-dnn">Low Risk</div>
+                            </div>
+                            <div class="model-result-card delay-100" id="card-tabnet">
+                                <div class="m-title"><i class="fa-solid fa-table-cells text-blue"></i> TabNet</div>
+                                <div class="m-prob" id="prob-tabnet">--%</div>
+                                <div class="m-status" id="status-tabnet">Low Risk</div>
+                            </div>
+                            <div class="model-result-card delay-150" id="card-mlp">
+                                <div class="m-title"><i class="fa-solid fa-network-wired text-purple"></i> MLP</div>
+                                <div class="m-prob" id="prob-mlp">--%</div>
+                                <div class="m-status" id="status-mlp">Low Risk</div>
+                            </div>
+                        </div>
+
+                        <div class="card glass-card recommendations-card animate-fade-up delay-300">
+                            <h3><i class="fa-solid fa-lightbulb text-amber"></i> Personalized Lifestyle &amp;
+                                Medical Recommendations</h3>
+                            <div class="rec-section">
+                                <h4><i class="fa-solid fa-user-doctor text-red"></i> Medical &amp; Cardiology Action
+                                    Items</h4>
+                                <ul id="rec-medical-list" class="rec-list"></ul>
+                            </div>
+                            <div class="rec-section">
+                                <h4><i class="fa-solid fa-apple-whole text-amber"></i> Dietary &amp; Lipid
+                                    Management</h4>
+                                <ul id="rec-dietary-list" class="rec-list"></ul>
+                            </div>
+                            <div class="rec-section">
+                                <h4><i class="fa-solid fa-heart-pulse text-blue"></i> Blood Pressure Protocol</h4>
+                                <ul id="rec-bp-list" class="rec-list"></ul>
+                            </div>
+                            <div class="rec-section">
+                                <h4><i class="fa-solid fa-person-running text-green"></i> Exercise &amp; Activity
+                                    Guidance</h4>
+                                <ul id="rec-exercise-list" class="rec-list"></ul>
+                            </div>
+                            <div class="rec-section">
+                                <h4><i class="fa-solid fa-clock-rotate-left text-purple"></i> Monitoring &amp;
+                                    Preventive Habits</h4>
+                                <ul id="rec-monitoring-list" class="rec-list"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+
+</html>

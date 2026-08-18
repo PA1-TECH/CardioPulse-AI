@@ -1,0 +1,78 @@
+[
+  {
+    "model_name": "DNN",
+    "accuracy": 0.7541,
+    "precision": 0.7647,
+    "recall": 0.7879,
+    "specificity": 0.7143,
+    "f1_score": 0.7761,
+    "roc_auc": 0.8452,
+    "confusion_matrix": [
+      [
+        20,
+        8
+      ],
+      [
+        7,
+        26
+      ]
+    ]
+  },
+  {
+    "model_name": "TabNet",
+    "accuracy": 0.8033,
+    "precision": 0.8387,
+    "recall": 0.7879,
+    "specificity": 0.8214,
+    "f1_score": 0.8125,
+    "roc_auc": 0.8258,
+    "confusion_matrix": [
+      [
+        23,
+        5
+      ],
+      [
+        7,
+        26
+      ]
+    ]
+  },
+  {
+    "model_name": "MLP",
+    "accuracy": 0.7869,
+    "precision": 0.8125,
+    "recall": 0.7879,
+    "specificity": 0.7857,
+    "f1_score": 0.8,
+    "roc_auc": 0.881,
+    "confusion_matrix": [
+      [
+        22,
+        6
+      ],
+      [
+        7,
+        26
+      ]
+    ]
+  },
+  {
+    "model_name": "Ensemble (DNN+TabNet+MLP)",
+    "accuracy": 0.7869,
+    "precision": 0.8125,
+    "recall": 0.7879,
+    "specificity": 0.7857,
+    "f1_score": 0.8,
+    "roc_auc": 0.8723,
+    "confusion_matrix": [
+      [
+        22,
+        6
+      ],
+      [
+        7,
+        26
+      ]
+    ]
+  }
+]

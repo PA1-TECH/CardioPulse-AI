@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Benchmark — CardioPulse AI</title>
+    <meta name="description"
+        content="Detailed model performance evaluation for DNN, TabNet, and MLP cardiovascular risk prediction models with interactive benchmark charts.">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+
+        <!-- Header / Navigation -->
+        <header class="app-header">
+            <div class="logo-group">
+                <div class="logo-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+                <div>
+                    <h1>CardioPulse AI</h1>
+                    <p>Heart Disease Risk Assessment &amp; Lifestyle Recommendation Engine</p>
+                </div>
+            </div>
+            <nav class="nav-tabs">
+                <a href="/" class="tab-btn"><i class="fa-solid fa-stethoscope"></i> Predictor</a>
+                <a href="/benchmark" class="tab-btn active"><i class="fa-solid fa-chart-line"></i> Benchmark</a>
+                <button id="theme-toggle" class="tab-btn" title="Toggle Light/Dark Mode">
+                    <i class="fa-solid fa-moon" id="theme-icon"></i>
+                </button>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <section class="tab-content active">
+                <div class="card glass-card metrics-card animate-fade-up delay-100">
+
+                    <!-- Metrics Table -->
+                    <div class="benchmark-header">
+                        <h2><i class="fa-solid fa-ranking-star"
+                                style="background:linear-gradient(135deg,#f59e0b,#ef4444);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;"></i>
+                            Model Evaluation Metrics</h2>
+                        <p>Comprehensive algorithmic performance analysis evaluated over test-set partitions — best
+                            scores highlighted in <span class="score-best">green</span></p>
+                    </div>
+
+                    <div
+                        style="overflow-x:auto; margin-bottom:48px; border:1px solid var(--card-border); border-radius:16px;">
+                        <table class="metrics-table" id="metrics-table-body" style="margin-top:0;">
+                            <thead>
+                                <tr>
+                                    <th>Model Engine</th>
+                                    <th>Accuracy</th>
+                                    <th>Precision</th>
+                                    <th>Recall</th>
+                                    <th>Specificity</th>
+                                    <th>F1-Score</th>
+                                    <th>ROC-AUC</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="7"
+                                        style="text-align:center; padding:28px; color:var(--text-secondary);">
+                                        <i class="fa-solid fa-circle-notch fa-spin"
+                                            style="margin-right:8px;"></i>Fetching evaluation payloads...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Interactive Charts -->
+                    <div class="benchmark-header">
+                        <h2><i class="fa-solid fa-chart-pie" style="color: var(--accent-purple);"></i> Interactive
+                            Performance Charts</h2>
+                        <p>Hover over each bar or radar node to inspect individual metric scores</p>
+                    </div>
+
+                    <div class="chart-grid animate-fade-up delay-200">
+                        <div class="chart-container">
+                            <h3><i class="fa-solid fa-chart-column"
+                                    style="color:var(--accent-blue);margin-right:6px;"></i> Accuracy &bull; F1-Score
+                                &bull; ROC-AUC</h3>
+                            <canvas id="barChart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h3><i class="fa-regular fa-circle-dot"
+                                    style="color:var(--accent-purple);margin-right:6px;"></i> Relative Strengths Radar
+                            </h3>
+                            <canvas id="radarChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Static Artifacts -->
+                    <div class="benchmark-header" style="margin-top:52px;">
+                        <h2><i class="fa-solid fa-microscope" style="color:var(--accent-cyan);"></i> Raw Analytical
+                            Artifacts</h2>
+                        <p>Static evaluation plots from the training pipeline — ROC curves, feature attention masks, and
+                            confusion matrices</p>
+                    </div>
+
+                    <div class="image-grid animate-fade-up delay-300">
+                        <div class="image-card">
+                            <h3><i class="fa-solid fa-chart-area text-blue" style="margin-right:5px;"></i>ROC Curves
+                            </h3>
+                            <img src="/output/roc_curves.png" alt="ROC Curves">
+                        </div>
+                        <div class="image-card">
+                            <h3><i class="fa-solid fa-brain text-purple" style="margin-right:5px;"></i>TabNet Feature
+                                Masks</h3>
+                            <img src="/output/tabnet_feature_importance.png" alt="TabNet Attention">
+                        </div>
+                        <div class="image-card">
+                            <h3><i class="fa-solid fa-table-cells text-red" style="margin-right:5px;"></i>Confusion
+                                Matrices</h3>
+                            <img src="/output/confusion_matrices.png" alt="Confusion Matrices">
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch('/api/metrics');
+                const data = await res.json();
+
+                if (data.status !== 'success' || !data.metrics) throw new Error('No metrics');
+
+                const models = data.metrics;
+                const tbody = document.querySelector('#metrics-table-body tbody');
+                tbody.innerHTML = '';
+
+                const keys = ['accuracy', 'precision', 'recall', 'specificity', 'f1_score', 'roc_auc'];
+                const maxScores = {};
+                keys.forEach(k => { maxScores[k] = Math.max(...models.map(m => m[k])); });
+
+                const hi = (val, k) => {
+                    const pct = k === 'f1_score' || k === 'roc_auc' ? val.toFixed(4) : (val * 100).toFixed(2) + '%';
+                    return val === maxScores[k] ? `<span class="score-best">${pct}</span>` : pct;
+                };
+
+                const icons = {
+                    DNN: "<i class='fa-solid fa-brain text-indigo'></i>",
+                    TabNet: "<i class='fa-solid fa-table-cells text-blue'></i>",
+                    MLP: "<i class='fa-solid fa-network-wired text-amber'></i>",
+                    Ensemble: "<i class='fa-solid fa-cube text-purple'></i>"
+                };
+
+                const labels = [], acc = [], f1 = [], auc = [];
+
+                models.forEach(m => {
+                    const key = Object.keys(icons).find(k => m.model_name.includes(k)) || m.model_name;
+                    const icon = icons[key] || '';
+                    const tr = document.createElement('tr');
+                    tr.style.animation = 'fadeInUp 0.4s ease both';
+                    tr.innerHTML = `
+                <td><strong style="display:flex;align-items:center;gap:8px;">${icon} ${m.model_name}</strong></td>
+                <td>${hi(m.accuracy, 'accuracy')}</td>
+                <td>${hi(m.precision, 'precision')}</td>
+                <td>${hi(m.recall, 'recall')}</td>
+                <td>${hi(m.specificity, 'specificity')}</td>
+                <td>${hi(m.f1_score, 'f1_score')}</td>
+                <td>${hi(m.roc_auc, 'roc_auc')}</td>`;
+                    tbody.appendChild(tr);
+
+                    labels.push(m.model_name);
+                    acc.push(+(m.accuracy * 100).toFixed(2));
+                    f1.push(+(m.f1_score * 100).toFixed(2));
+                    auc.push(+(m.roc_auc * 100).toFixed(2));
+                });
+
+                // Chart.js defaults
+                Chart.defaults.color = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim() || '#8892a4';
+                Chart.defaults.font.family = "'Inter', sans-serif";
+
+                const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+                const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)';
+
+                // Bar Chart
+                new Chart(document.getElementById('barChart'), {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [
+                            { label: 'Accuracy %', data: acc, backgroundColor: 'rgba(59,130,246,0.75)', borderColor: '#3b82f6', borderWidth: 1, borderRadius: 6 },
+                            { label: 'F1-Score %', data: f1, backgroundColor: 'rgba(168,85,247,0.75)', borderColor: '#a855f7', borderWidth: 1, borderRadius: 6 },
+                            { label: 'ROC-AUC %', data: auc, backgroundColor: 'rgba(16,185,129,0.75)', borderColor: '#10b981', borderWidth: 1, borderRadius: 6 }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        animation: { duration: 1000, easing: 'easeOutQuart' },
+                        plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true } } },
+                        scales: {
+                            y: { min: 60, max: 100, grid: { color: gridColor }, ticks: { callback: v => v + '%' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+
+                // Radar Chart
+                const palette = [
+                    { b: 'rgba(99,102,241,0.25)', s: '#6366f1' },
+                    { b: 'rgba(59,130,246,0.25)', s: '#3b82f6' },
+                    { b: 'rgba(245,158,11,0.25)', s: '#f59e0b' },
+                    { b: 'rgba(168,85,247,0.25)', s: '#a855f7' }
+                ];
+                new Chart(document.getElementById('radarChart'), {
+                    type: 'radar',
+                    data: {
+                        labels: ['Accuracy', 'Precision', 'Recall', 'Specificity', 'F1', 'ROC-AUC'],
+                        datasets: models.map((m, i) => ({
+                            label: m.model_name,
+                            data: [m.accuracy, m.precision, m.recall, m.specificity, m.f1_score, m.roc_auc].map(v => +(v * 100).toFixed(2)),
+                            backgroundColor: palette[i % palette.length].b,
+                            borderColor: palette[i % palette.length].s,
+                            pointBackgroundColor: palette[i % palette.length].s,
+                            borderWidth: 2, fill: true,
+                            pointRadius: 4, pointHoverRadius: 6
+                        }))
+                    },
+                    options: {
+                        responsive: true,
+                        animation: { duration: 1200, easing: 'easeOutQuart' },
+                        plugins: { legend: { position: 'bottom', labels: { padding: 14, usePointStyle: true } } },
+                        scales: {
+                            r: {
+                                min: 60, max: 100,
+                                angleLines: { color: gridColor },
+                                grid: { color: gridColor },
+                                pointLabels: { color: isDark ? '#cbd5e1' : '#475569', font: { size: 11 } },
+                                ticks: { display: false }
+                            }
+                        }
+                    }
+                });
+
+            } catch (e) {
+                document.querySelector('#metrics-table-body tbody').innerHTML =
+                    `<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--accent-red);">
+                <i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;"></i>
+                Error loading metrics. Ensure models have been trained and evaluated.</td></tr>`;
+            }
+        });
+    </script>
+</body>
+
+</html>
